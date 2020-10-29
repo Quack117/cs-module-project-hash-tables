@@ -6,7 +6,8 @@ class HashTableEntry:
         self.key = key
         self.value = value
         self.next = None
-
+    def __str__(self):
+        return "'{}': '{}'".format(self.key, self.value)
 
 # Hash table can't have fewer than this many slots
 MIN_CAPACITY = 8
@@ -22,6 +23,8 @@ class HashTable:
 
     def __init__(self, capacity):
         # Your code here
+        self.array = [None] * capacity
+        self.capacity = capacity
 
 
     def get_num_slots(self):
@@ -63,6 +66,14 @@ class HashTable:
         Implement this, and/or FNV-1.
         """
         # Your code here
+        hash = 5381
+        byte_array = key.encode('utf-8')
+
+        for byte in byte_array:
+        # the modulus keeps it 32-bit, python ints don't overflow
+            hash = ((hash * 33) ^ byte) % 0x100000000
+
+        return hash
 
 
     def hash_index(self, key):
@@ -82,6 +93,28 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        index = self.djb2(key)
+        if self.array[index] is not None:
+            # This index already contain some values.
+            # This means that this add MIGHT be an update
+            # to a key that already exist. Instead of just storing
+            # the value we have to first look if the key exist.
+            for kvp in self.array[index]:
+                # If key is found, then update
+                # its current value to the new value.
+                if kvp[0] == key:
+                    kvp[1] = value
+                    break
+            else:
+                # If no breaks was hit in the for loop, it 
+                # means that no existing key was found, 
+                # so we can simply just add it to the end.
+                self.array[index].append([key, value])
+        else:
+            # This index is empty. We should initiate 
+            # a list and append our key-value-pair to it.
+            self.array[index] = []
+            self.array[index].append([key, value])
 
 
     def delete(self, key):
@@ -93,6 +126,11 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        index = self.djb2(key)
+        if self.array[index] is not None:
+            self.array[index].append([key, None])
+        else:
+            return
 
 
     def get(self, key):
@@ -104,6 +142,20 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        index = self.djb2(key)
+        if self.array[index] is None:
+            raise KeyError()
+        else:
+            # Loop through all key-value-pairs
+            # and find if our key exist. If it does 
+            # then return its value.
+            for kvp in self.array[index]:
+                if kvp[0] == key:
+                    return kvp[1]
+            
+            # If no return was done during loop,
+            # it means key didn't exist.
+            raise KeyError()
 
 
     def resize(self, new_capacity):
