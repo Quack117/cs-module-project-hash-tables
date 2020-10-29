@@ -93,7 +93,7 @@ class HashTable:
         Implement this.
         """
         # Your code here
-        index = self.djb2(key)
+        index = self.hash_index(key)
         if self.array[index] is not None:
             # This index already contain some values.
             # This means that this add MIGHT be an update
@@ -126,11 +126,10 @@ class HashTable:
         Implement this.
         """
         # Your code here
-        index = self.djb2(key)
-        if self.array[index] is not None:
-            self.array[index].append([key, None])
-        else:
-            return
+        index = self.hash_index(key)
+        self.value = None
+        self.array[index].appenedself.value
+ 
 
 
     def get(self, key):
@@ -142,7 +141,7 @@ class HashTable:
         Implement this.
         """
         # Your code here
-        index = self.djb2(key)
+        index = self.hash_index(key)
         if self.array[index] is None:
             raise KeyError()
         else:
